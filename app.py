@@ -1,3 +1,5 @@
+import chess
+import firebase_admin
 from flask import Flask
 
 app = Flask(__name__)

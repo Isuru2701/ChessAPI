@@ -1,14 +1,23 @@
 import chess
-import firebase_admin
 from flask import Flask
+from firebaseConfig.firebaseConfig import Database
+import json
 
 app = Flask(__name__)
 
+db = Database()
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
+@app.route('/api/')
+def start():  # put application's code here
+    id, token = db.initialize()
+
+    return json.dumps(
+        {
+            "id" : id,
+            "token" : token
+        }
+    )
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

@@ -12,15 +12,16 @@ class Database:
         self.__token = ""
         self.__moveId = 0
 
+        # Make an app in firebaseConfig > add realtime database > service accounts > generate new private key
+        # Add the json file to the same directory as this file and rename it to "firebaseconfig.json"
+        # This file isn't pushed to GitHub for security reasons.
         cred = credentials.Certificate("firebaseConfig/firebaseconfig.json")
 
         firebase_admin.initialize_app(cred, {
             "databaseURL": self.__url
         })
 
-    def initialize(self):
-        # Make an app in firebaseConfig > add realtime database > service accounts > generate new private key
-        # Add the json file to the same directory as this file and rename it to "firebaseconfig.json"
+    def initialize(self, elo):
 
         try:
             # make a new game index.
@@ -35,6 +36,7 @@ class Database:
         self.__game = db.reference("games").child(str(self.__id))
         self.__token = secrets.token_hex(16)
         self.__game.child("id").set(self.__id)
+        self.__game.child("elo").set(elo)
         self.__game.child("token").set(self.__token)
 
         return self.__id, self.__token

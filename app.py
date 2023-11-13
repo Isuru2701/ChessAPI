@@ -1,5 +1,7 @@
 import chess
-from flask import Flask
+from flask import Flask, request
+
+from Game import Game
 from firebaseConfig.firebaseConfig import Database
 import json
 
@@ -9,11 +11,13 @@ db = Database()
 
 @app.route('/api/')
 def start():  # put application's code here
-    id, token = db.initialize()
+    elo = request.args.get('elo')
+    id, token = db.initialize(elo)
 
     return json.dumps(
         {
             "id" : id,
+            "elo": elo,
             "token" : token
         }
     )

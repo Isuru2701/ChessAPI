@@ -19,7 +19,7 @@ def start():  # put application's code here
         elo = 1200 ##default elo
 
     id, token = db.initialize(elo)
-    game = Game(elo)
+    game = Game(int(elo))
 
     return json.dumps(
         {
@@ -28,6 +28,12 @@ def start():  # put application's code here
             "token" : token
         }
     )
+
+
+def verify(json):
+    """extract the id and token from the json and verify with firebase"""
+    pass
+
 
 
 if __name__ == '__main__':

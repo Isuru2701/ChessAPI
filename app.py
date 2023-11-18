@@ -4,16 +4,17 @@ import json
 
 #custom libraries
 from Game import Game
-from firebaseConfig.firebaseConfig import Database
+from firebaseConfig.firebaseConfig import Record
 
 
 
 app = Flask(__name__)
 
-db = Database()
+
 
 @app.route('/api/')
 def start():  # put application's code here
+    db = Record()
     elo = request.args.get('elo')
     if elo is None or not elo.isnumeric():
         elo = 1200 ##default elo
@@ -30,10 +31,10 @@ def start():  # put application's code here
     )
 
 
-def verify(json):
-    """extract the id and token from the json and verify with firebase"""
-    pass
-
+def verify(id, token):
+    """id and token verified with firebase"""
+    db = Record()
+    return db.exists(id, token)
 
 
 if __name__ == '__main__':

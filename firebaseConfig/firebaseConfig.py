@@ -3,7 +3,7 @@ from firebase_admin import credentials, db
 import secrets
 
 
-class Database:
+class Record:
 
     def __init__(self):
         self.__game = None #a reference to the database's entry

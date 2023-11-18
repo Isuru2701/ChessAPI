@@ -17,9 +17,23 @@ class Game:
         self.__board = chess.Board()
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
 
-        # refer to the following paper for skill level to elo comparison http://web.ist.utl.pt/diogo.ferreira/papers/ferreira13impact.pdf Page 11
-        self.__engine.configure({"UCI_LimitStrength": True,"min": 100, "UCI_Elo": self.__elo })
-        print(self.__engine.options)
+        # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
+        if elo < 800:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 1})
+        elif elo < 900:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 2})
+        elif elo < 1000:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 3})
+        elif elo < 1200:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 4})
+        elif elo < 1700:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 5})
+        elif elo < 1900:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 6})
+        elif elo < 2000:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 7})
+        else:
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 10})
     def getMoves(self):
         """
         Get the moves of the game

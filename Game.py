@@ -19,7 +19,7 @@ class Game:
 
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:
-            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 1})
+            self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 0})
         elif elo < 900:
             self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 2})
         elif elo < 1000:
@@ -47,5 +47,11 @@ class Game:
         kills the engine
         """
         self.__engine.quit()
+
+    def makeMove(self):
+        """user makes move"""
+
+    def stockfishMove(self) -> str:
+        """stockfish AI makes move and sends back a from-square-to-square"""
 
 

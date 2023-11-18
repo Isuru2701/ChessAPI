@@ -12,7 +12,7 @@ A python-flask-based stockfish api that gives the best move for the correspondin
 ### GET /
     RETURNS a chess board to make moves online
 
-### GET /api&elo?={elo}
+### GET /api/?elo={elo}
     initializes the game. With difficulty set to the `elo` level
     default elo is 1200
 

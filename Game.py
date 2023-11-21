@@ -16,6 +16,8 @@ class Game:
         self.__aiMoves = []
         self.__board = chess.Board()
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        self.__game_over = False
+        self.__isPlayerTurn = True
 
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:
@@ -48,10 +50,54 @@ class Game:
         """
         self.__engine.quit()
 
-    def makeMove(self):
+    def isLegalMove(self, move) -> bool:
+        """Check if the move is legal
+            return: True if legal, False otherwise
+        """
+        return move in self.__board.legal_moves
+
+    def makeMove(self, moveStr):
         """user makes move"""
+
+        if not self.__game_over and self.__isPlayerTurn:
+            if self.isLegalMove(moveStr):
+                self.__board.push_san(moveStr)
+                self.__playerMoves.append(moveStr)
+
+
+        self.__playerMoves.append(moveStr)
+
+        ##AI's Turn next
+        self.__isPlayerTurn = False
+        return "OK"
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""
+        result = self.__engine.play(self.__board, chess.engine.Limit(time=4.0))
+        move = result.move
+        self.__board.push(move)
+        # Back to the user
+        self.__aiMoves.append(move.uci())
+        self.__isPlayerTurn = True
+
+        if self.__board.is_kingside_castling(move):
+            return "O-O"
+        elif self.__board.is_queenside_castling(move):
+            return "O-O-O"
+
+        return move.uci()
+
+
+    def checkForGameOver(self) -> bool:
+        """Game over logic: check for
+         - Checkmate
+         - Stalemate
+         - Draw
+         - Resignation
+         """
+        if self.__board.is_checkmate():
+            self.__game_over = True
+
+        return self.__game_over
 
 

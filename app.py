@@ -1,5 +1,5 @@
 import chess
-from flask import Flask, request
+from flask import Flask, request, g
 import json
 
 #custom libraries
@@ -29,6 +29,10 @@ def start():  # put application's code here
             "token" : token
         }
     )
+
+@app.route('/api/', methods=["POST"])
+def move():
+    pass
 
 
 def verify(id, token):

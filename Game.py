@@ -100,4 +100,9 @@ class Game:
 
         return self.__game_over
 
+    def getBoard(self):
+        return self.__board.fen()
+
+    def setBoard(self, fenStr):
+        self.__board.set_board_fen(fenStr)
 

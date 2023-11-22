@@ -1,16 +1,13 @@
 import firebase_admin
-from firebase_admin import credentials, db
+from firebase_admin import credentials, db, exceptions
 import secrets
 
 
-class Record:
+class Database:
 
     def __init__(self):
         self.__game = None #a reference to the database's entry
         self.__url = "https://chess-13669-default-rtdb.asia-southeast1.firebasedatabase.app/"
-        self.__id = 0
-        self.__token = ""
-        self.__moveId = 0
 
         # Make an app in firebaseConfig > add realtime database > service accounts > generate new private key
         # Add the json file to the same directory as this file and rename it to "firebaseconfig.json"
@@ -28,28 +25,54 @@ class Record:
             print("Config file not found or is invalid. Please check your directory again")
 
 
-
-
-    def initialize(self, elo):
-
+    def getLastGameId(self) -> int:
+        """
+        fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
+        :return: last game ID
+        """
         try:
             # make a new game index.
             games = db.reference("games").get()
             ids = [game['id'] for game in games]
-            self.__id = max(ids) + 1
+            id = max(ids) + 1
+            return id
 
-        except:
+        except exceptions.FirebaseError:
             print('first game')
+            return 0
 
-        print(self.__id)
-        self.__game = db.reference("games").child(str(self.__id))
-        self.__token = secrets.token_hex(16)
-        self.__game.child("id").set(self.__id)
-        self.__game.child("elo").set(elo)
-        self.__game.child("token").set(self.__token)
-        self.__game.child("board").set("")
+    def getLastMoveId(self, id, token) -> int:
+        """
+        fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
+        :return: last game ID
+        """
+        try:
+            # make a new game index.
+            if self.exists(id, token):
+                moves = db.reference("games").child(str(id)).child("moves").get()
+                ids = [move for move in moves]
+                return max(ids)
+            else:
+                raise
 
-        return self.__id, self.__token
+        except exceptions.FirebaseError:
+            print('first move')
+            return 0
+
+
+
+    def initialize(self, id, token, elo):
+
+        try:
+            print(id)
+            self.__game = db.reference("games").child(str(id))
+            self.__game.child("id").set(id)
+            self.__game.child("elo").set(elo)
+            self.__game.child("token").set(token)
+            self.__game.child("board").set("")
+
+        except exceptions.FirebaseError:
+            return
 
     def writeMove(self, move, board):
         """
@@ -58,7 +81,7 @@ class Record:
         :param board: Send the board representation as a FEN string
         :return:
         """
-        self.__game.child("moves").child(self.__moveId).set(move)
+        self.__game.child("moves").child().set(move)
         self.__game.child("board").set(board)
         self.__moveId += 1
 

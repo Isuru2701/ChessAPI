@@ -63,10 +63,7 @@ RETURNS
   "id": 0,
   "token": 0,
   "state": "playing",
-  "moves": {
-    "1": "e2e4",
-    "2": "e7e5" 
-  }
+  "board": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 ```
 ### PUT /api/{id}/resign

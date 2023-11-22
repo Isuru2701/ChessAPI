@@ -1,5 +1,5 @@
 import chess
-from flask import Flask, request, g
+from flask import Flask, request, session
 import json
 
 #custom libraries
@@ -25,14 +25,15 @@ def start():  # put application's code here
     return json.dumps(
         {
             "id" : id,
-            "elo": elo,
-            "token" : token
+            "token": token,
+            "elo": elo
+
         }
     )
 
 @app.route('/api/', methods=["POST"])
 def move():
-    pass
+    
 
 
 def verify(id, token):

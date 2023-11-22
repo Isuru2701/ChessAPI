@@ -21,7 +21,7 @@ A python-flask-based stockfish api that gives the best move for the correspondin
 Use the id and token to access your game
 
 ### POST /api/{move}
-    make user move in the game. Uses the from-square to-square format.
+    make user move in the game. Uses the from-square to-square format. Returns AI move.
 ```json
 {
   "id": 0,

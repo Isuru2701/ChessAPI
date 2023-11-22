@@ -17,16 +17,18 @@ class Record:
         # This file isn't pushed to GitHub for security reasons.
         try:
             cred = credentials.Certificate(r"firebaseConfig/firebaseconfig.json")
-        except:
-            print("Config file not found. Please check your directory again")
+            try:
+                firebase_admin.initialize_app(cred, {
+                    "databaseURL": self.__url
+                })
+            except ValueError:
+                print("An error occurred. Are you connected to the internet?")
+
+        except IOError | ValueError:
+            print("Config file not found or is invalid. Please check your directory again")
 
 
-        try:
-            firebase_admin.initialize_app(cred, {
-                "databaseURL": self.__url
-            })
-        except:
-            print("An error occurred. Are you connected to the internet?")
+
 
     def initialize(self, elo):
 
@@ -45,11 +47,19 @@ class Record:
         self.__game.child("id").set(self.__id)
         self.__game.child("elo").set(elo)
         self.__game.child("token").set(self.__token)
+        self.__game.child("board").set("")
 
         return self.__id, self.__token
 
-    def writeMove(self, move):
+    def writeMove(self, move, board):
+        """
+        Writes the move to the database
+        :param move: Send the move as a SAN string (e.g. e4, Nf3, etc.)
+        :param board: Send the board representation as a FEN string
+        :return:
+        """
         self.__game.child("moves").child(self.__moveId).set(move)
+        self.__game.child("board").set(board)
         self.__moveId += 1
 
     def exists(self, id, token):

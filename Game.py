@@ -9,7 +9,7 @@ class Game:
     Uses stockfish engine
     Communicates with the engine via The Universal chess interface (UCI) and XBoard protocol
     """
-    def __init__(self, elo):
+    def __init__(self, elo, board=""):
         self.__elo = elo
         self.__stockfish = r"stockfish/stockfish-windows-x86-64-avx2.exe"
         self.__playerMoves = []
@@ -105,4 +105,3 @@ class Game:
 
     def setBoard(self, fenStr):
         self.__board.set_board_fen(fenStr)
-

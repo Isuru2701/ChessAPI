@@ -10,8 +10,6 @@ from firebaseConfig.firebaseConfig import Record
 
 app = Flask(__name__)
 
-
-
 @app.route('/api/')
 def start():  # put application's code here
     db = Record()
@@ -33,7 +31,10 @@ def start():  # put application's code here
 
 @app.route('/api/', methods=["POST"])
 def move():
-    
+    db = Record()
+    if db.exists(request.form["id"], request.form["token"]):
+        move = request.form["move"]
+        game =
 
 
 def verify(id, token):

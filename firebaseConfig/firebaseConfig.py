@@ -71,3 +71,27 @@ class Record:
                 return True
 
         return False
+
+    def loadBoard(self, id, token) -> str:
+        """
+
+        :param id:
+        :param token:
+        :return: board's FEN
+        """
+
+        if self.exists(id, token):
+            return str(db.reference("games").child(str(id)).child("board").get())
+
+    def writeBoard(self, id, token, board) -> bool:
+        """
+
+        :param id:
+        :param token:
+        :param board: board representation as FEN
+        :return: True if successful, False if failed
+        """
+        if self.exists(id, token):
+            db.reference("games").child(str(id)).child("board").set(board)
+            return True
+        return False

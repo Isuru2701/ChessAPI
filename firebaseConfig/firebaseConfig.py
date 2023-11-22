@@ -15,11 +15,18 @@ class Record:
         # Make an app in firebaseConfig > add realtime database > service accounts > generate new private key
         # Add the json file to the same directory as this file and rename it to "firebaseconfig.json"
         # This file isn't pushed to GitHub for security reasons.
-        cred = credentials.Certificate(r"firebaseConfig/firebaseconfig.json")
+        try:
+            cred = credentials.Certificate(r"firebaseConfig/firebaseconfig.json")
+        except:
+            print("Config file not found. Please check your directory again")
 
-        firebase_admin.initialize_app(cred, {
-            "databaseURL": self.__url
-        })
+
+        try:
+            firebase_admin.initialize_app(cred, {
+                "databaseURL": self.__url
+            })
+        except:
+            print("An error occurred. Are you connected to the internet?")
 
     def initialize(self, elo):
 

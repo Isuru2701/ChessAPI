@@ -26,9 +26,7 @@ def start():
     # generate token
     token = secrets.token_hex(16)
 
-
     db.initialize(id, token, elo)
-    game = Game(int(elo))
 
     return json.dumps(
         {
@@ -43,7 +41,8 @@ def start():
 def getBoard():
     db = Database()
     game = db.loadGame(request.form["id"], request.form["token"])
-    return game.getBoard()
+    if game is not None:
+        return game.getBoard()
 
     return "Game not found"
 
@@ -52,9 +51,14 @@ def move():
     db = Database()
 
     if db.exists(request.form["id"], request.form["token"]):
-        game = db.get
-
-        move = request.form["move"]
+        game = db.loadGame(request.form["id"], request.form["token"])
+        if game is not None:
+            if game.isLegalMove(request.form["move"]):
+                game.makeMove(request.form["move"])
+                db.updateGame(game)
+                return game.getBoard()
+            else:
+                return "Illegal move"
 
 
 

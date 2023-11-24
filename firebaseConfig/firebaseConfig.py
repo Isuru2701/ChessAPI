@@ -125,3 +125,6 @@ class Database:
             return Game(game["elo"], game["board"])
 
         return None
+
+    def updateGame(self, game):
+        pass

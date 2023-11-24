@@ -37,7 +37,7 @@ def start():
         }
     )
 
-@app.route('/api/games/', methods=["POST"])
+@app.route('/api/games/board', methods=["POST"])
 def getBoard():
     db = Database()
     game = db.loadGame(request.form["id"], request.form["token"])
@@ -55,7 +55,7 @@ def move():
         if game is not None:
             if game.isLegalMove(request.form["move"]):
                 game.makeMove(request.form["move"])
-                db.updateGame(game)
+                db.updateGame(request.form["id"], request.form["token"], game, request.form["move"])
                 return game.getBoard()
             else:
                 return "Illegal move"

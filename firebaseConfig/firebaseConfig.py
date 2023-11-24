@@ -42,7 +42,7 @@ class Database:
 
     def getLastMoveId(self, id, token) -> int:
         """
-        fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
+        fetches the last MOVE ID. Increment this by 1 to get the move ID for a new move.
         :return: last game ID
         """
         try:
@@ -51,10 +51,8 @@ class Database:
                 moves = db.reference("games").child(str(id)).child("moves").get()
                 ids = [move for move in moves]
                 return max(ids)
-            else:
-                raise
 
-        except exceptions.FirebaseError:
+        except:
             print('first move')
             return 0
 
@@ -132,5 +130,15 @@ class Database:
 
         return None
 
-    def updateGame(self, game):
-        pass
+    def updateGame(self, id, token, game, move):
+        """
+        Updates the game in the database
+        :param id:
+        :param token:
+        :param game:
+        :return:
+        """
+        if self.exists(id, token):
+            self.__game = db.reference("games").child(str(game.getId()))
+        self.__game.child("board").set(game.getBoard())
+        self.__game.child("moves").child(str(self.getLastMoveId(id, token)+1)).set(move)

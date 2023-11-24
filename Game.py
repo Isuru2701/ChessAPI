@@ -65,12 +65,12 @@ class Game:
                     self.__board.push_san(moveStr)
                     self.__playerMoves.append(moveStr)
                     self.__playerMoves.append(moveStr)
-
                     ##AI's Turn next
                     self.__isPlayerTurn = False
                     return "OK"
 
             return "NOT_YOUR_TURN"
+
         return "GAME_OVER"
 
 

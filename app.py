@@ -11,7 +11,7 @@ from firebaseConfig.firebaseConfig import Database
 
 app = Flask(__name__)
 
-@app.route('/api/')
+@app.route('/api/games/')
 def start():
 
 
@@ -37,7 +37,7 @@ def start():
         }
     )
 
-@app.route('/api/game/', methods=["POST"])
+@app.route('/api/games/', methods=["POST"])
 def getBoard():
     db = Database()
     game = db.loadGame(request.form["id"], request.form["token"])
@@ -46,7 +46,7 @@ def getBoard():
 
     return "Game not found"
 
-@app.route('/api/', methods=["POST"])
+@app.route('/api/games/', methods=["POST"])
 def move():
     db = Database()
 

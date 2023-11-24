@@ -12,7 +12,7 @@ A python-flask-based stockfish api that gives the best move for the correspondin
 ###  GET /
     RETURNS a chess board to make moves online
 
-###  GET /api/?elo={elo}
+###  GET /api/games/?elo={elo}
     initializes the game. With difficulty set to the `elo` level
     default elo is 1200
 
@@ -20,7 +20,7 @@ A python-flask-based stockfish api that gives the best move for the correspondin
 
 Use the id and token to access your game
 
-### POST /api/{move}
+### POST /api/games/{move}
     make user move in the game. Uses the from-square to-square format. Returns AI move.
 ```json
 {
@@ -47,15 +47,8 @@ If illegal move RETURNS
 }
 ```
 
-### GET /api/state/{id}
+### GET /api/games/{id}
     GET the current state of the game
-
-```json
-{
-  "id": 0,
-  "token": 0
-}
-```
 
 RETURNS
 ```json
@@ -66,7 +59,7 @@ RETURNS
   "board": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 ```
-### PUT /api/{id}/resign
+### PUT /api/games/{id}/resign
     resign the game
 
 ```json

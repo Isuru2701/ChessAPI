@@ -59,17 +59,20 @@ class Game:
     def makeMove(self, moveStr):
         """user makes move"""
 
-        if not self.__game_over and self.__isPlayerTurn:
-            if self.isLegalMove(moveStr):
-                self.__board.push_san(moveStr)
-                self.__playerMoves.append(moveStr)
+        if not self.__game_over:
+            if self.__isPlayerTurn:
+                if self.isLegalMove(moveStr):
+                    self.__board.push_san(moveStr)
+                    self.__playerMoves.append(moveStr)
+                    self.__playerMoves.append(moveStr)
 
+                    ##AI's Turn next
+                    self.__isPlayerTurn = False
+                    return "OK"
 
-        self.__playerMoves.append(moveStr)
+            return "NOT_YOUR_TURN"
+        return "GAME_OVER"
 
-        ##AI's Turn next
-        self.__isPlayerTurn = False
-        return "OK"
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""

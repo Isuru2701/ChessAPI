@@ -119,6 +119,12 @@ class Database:
         return False
 
     def loadGame(self, id, token) -> Game | None:
+        """
+        Load the Game from the database
+        :param id:
+        :param token:
+        :return: Game if present, None if not
+        """
 
         if self.exists(id, token):
             game = db.reference("games").child(str(id)).get()

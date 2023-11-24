@@ -1,7 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, db, exceptions
 import secrets
-
+from Game import Game
 
 class Database:
 
@@ -34,8 +34,7 @@ class Database:
             # make a new game index.
             games = db.reference("games").get()
             ids = [game['id'] for game in games]
-            id = max(ids) + 1
-            return id
+            return max(ids)
 
         except exceptions.FirebaseError:
             print('first game')
@@ -118,3 +117,11 @@ class Database:
             db.reference("games").child(str(id)).child("board").set(board)
             return True
         return False
+
+    def loadGame(self, id, token) -> Game | None:
+
+        if self.exists(id, token):
+            game = db.reference("games").child(str(id)).get()
+            return Game(game["elo"], game["board"])
+
+        return None

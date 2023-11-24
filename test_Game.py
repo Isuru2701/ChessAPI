@@ -7,3 +7,8 @@ def test_get_moves():
 def test_exists():
     db = Database()
     print(db.exists(2, "999898"))
+
+
+def test_loadgame():
+    db = Database()
+    game = db.loadGame(2, "999898")

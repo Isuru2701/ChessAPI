@@ -69,7 +69,7 @@ class Database:
             self.__game.child("board").set("")
 
         except exceptions.FirebaseError:
-            return
+            return "An error occurred. Are you connected to the internet?"
 
     def writeMove(self, move, board):
         """

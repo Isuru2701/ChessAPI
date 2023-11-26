@@ -14,11 +14,17 @@ app = Flask(__name__)
 @app.route('/api/games/')
 def start():
 
+    """
+    initialize a game
+    setup firebase, generate ID, generate token
+    return id, token, and elo
+    :return:
+    """
 
     db = Database()
     elo = request.args.get('elo')
     if elo is None or not elo.isnumeric():
-        elo = 1200 ##default elo
+        elo = 1200 # default elo
 
     # generate ID
     id = db.getLastGameId() + 1
@@ -37,15 +43,6 @@ def start():
         }
     )
 
-@app.route('/api/games/board', methods=["POST"])
-def getBoard():
-    db = Database()
-    game = db.loadGame(request.form["id"], request.form["token"])
-    if game is not None:
-        return game.getBoard()
-
-    return "Game not found"
-
 @app.route('/api/games/', methods=["POST"])
 def move():
     db = Database()
@@ -60,6 +57,16 @@ def move():
             else:
                 return "Illegal move"
 
+
+
+@app.route('/api/games/board', methods=["POST"])
+def getBoard():
+    db = Database()
+    game = db.loadGame(request.form["id"], request.form["token"])
+    if game is not None:
+        return game.getBoard()
+
+    return "Game not found"
 
 
 if __name__ == '__main__':

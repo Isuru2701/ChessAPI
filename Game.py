@@ -12,8 +12,6 @@ class Game:
     def __init__(self, elo, board=""):
         self.__elo = elo
         self.__stockfish = r"stockfish/stockfish-windows-x86-64-avx2.exe"
-        self.__playerMoves = []
-        self.__aiMoves = []
         self.__board = chess.Board()
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
         self.__game_over = False
@@ -36,13 +34,6 @@ class Game:
             self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 7})
         else:
             self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 10})
-    def getMoves(self):
-        """
-        Get the moves of the game
-        :return: player moves and ai moves as arrays
-        """
-        return self.__playerMoves, self.__aiMoves
-
 
     def destroy(self):
         """
@@ -63,8 +54,6 @@ class Game:
             if self.__isPlayerTurn:
                 if self.isLegalMove(moveStr):
                     self.__board.push_san(moveStr)
-                    self.__playerMoves.append(moveStr)
-                    self.__playerMoves.append(moveStr)
                     ##AI's Turn next
                     self.__isPlayerTurn = False
                     return "OK"

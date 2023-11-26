@@ -12,7 +12,10 @@ class Game:
     def __init__(self, elo, board=""):
         self.__elo = elo
         self.__stockfish = r"stockfish/stockfish-windows-x86-64-avx2.exe"
-        self.__board = chess.Board()
+        if board == "":
+            self.__board = chess.Board()
+        else:
+            self.__board = chess.Board(board)
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
         self.__game_over = False
         self.__isPlayerTurn = True

@@ -18,7 +18,6 @@ class Game:
             self.__board = chess.Board(board)
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
         self.__game_over = False
-        self.__isPlayerTurn = True
 
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:
@@ -51,19 +50,13 @@ class Game:
         return move in self.__board.legal_moves
 
     def makeMove(self, moveStr):
-        """user makes move"""
+        """user makes move
 
-        if not self.__game_over:
-            if self.__isPlayerTurn:
-                if self.isLegalMove(moveStr):
-                    self.__board.push_san(moveStr)
-                    ##AI's Turn next
-                    self.__isPlayerTurn = False
-                    return "OK"
+        :param moveStr: move in SAN format
+        """
 
-            return "NOT_YOUR_TURN"
 
-        return "GAME_OVER"
+
 
 
     def stockfishMove(self) -> str:
@@ -71,29 +64,33 @@ class Game:
         result = self.__engine.play(self.__board, chess.engine.Limit(time=4.0))
         move = result.move
         self.__board.push(move)
-        # Back to the user
-        self.__aiMoves.append(move.uci())
-        self.__isPlayerTurn = True
 
         if self.__board.is_kingside_castling(move):
             return "O-O"
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
 
+        if self.checkForGameOver():
+            return "AI_WINS"
+
         return move.uci()
 
 
-    def checkForGameOver(self) -> bool:
+    def checkForGameOver(self) -> str:
         """Game over logic: check for
          - Checkmate
          - Stalemate
          - Draw
          - Resignation
          """
-        if self.__board.is_checkmate():
-            self.__game_over = True
+        if self.__board.is_stalemate():
+            return "STALEMATE"
 
-        return self.__game_over
+        if self.__board.is_checkmate():
+            return "CHECKMATE"
+
+        else:
+            return "NOT_OVER"
 
     def getBoard(self):
         return self.__board.fen()

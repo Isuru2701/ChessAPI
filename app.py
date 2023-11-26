@@ -45,17 +45,6 @@ def start():
 
 @app.route('/api/games/', methods=["POST"])
 def move():
-    db = Database()
-
-    if db.exists(request.form["id"], request.form["token"]):
-        game = db.loadGame(request.form["id"], request.form["token"])
-        if game is not None:
-            if game.isLegalMove(request.form["move"]):
-                game.makeMove(request.form["move"])
-                db.updateGame(request.form["id"], request.form["token"], game, request.form["move"])
-                return game.getBoard()
-            else:
-                return "Illegal move"
 
 
 

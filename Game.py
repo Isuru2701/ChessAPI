@@ -49,10 +49,11 @@ class Game:
         """
         return move in self.__board.legal_moves
 
-    def makeMove(self, moveStr):
+    def makeMove(self, moveStr) ->str:
         """user makes move
 
         :param moveStr: move in SAN format
+        :return: AI's move in SAN format
         """
 
 

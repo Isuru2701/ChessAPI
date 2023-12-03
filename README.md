@@ -22,7 +22,7 @@ Update robot availability
 {
   "sn": 1,
   "online": true,
-  "status": ["STANDBY", "PLAYING", "OVER"]
+  "status": ["STANDBY", "PLAYING"]
 }
 ```
 
@@ -59,6 +59,12 @@ RETURNS TO MOBILE APP
     "BLACK",
     "WHITE"
   ]
+}
+```
+IF robot is not available
+```json
+{
+  "error": "Robot not available"
 }
 ```
 

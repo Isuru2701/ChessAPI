@@ -2,6 +2,7 @@ import firebase_admin
 from firebase_admin import credentials, db, exceptions
 import secrets
 from Game import Game
+import time
 
 class Database:
 
@@ -142,3 +143,33 @@ class Database:
             self.__game = db.reference("games").child(str(game.getId()))
         self.__game.child("board").set(game.getBoard())
         self.__game.child("moves").child(str(self.getLastMoveId(id, token)+1)).set(move)
+
+    def updateRobotStatus(self, sn, status):
+        """
+        update robotSerialNumber Online status in database
+        with current time
+        """
+        last_request_time = time.time()
+
+        db.reference("robots").child(str(sn)).update({"lastOnline": str(last_request_time)})
+        db.reference("robots").child(str(sn)).update({"status": str(status)})
+        
+    def checkRobotOnline(self, sn):
+        """
+        validate the RobotSerialNumber is Online, if Not set it Offline and return status[online\offline]
+        """
+        currentTime = time.time()
+        lastOnlineTime = db.reference("robots").child(sn).child("lastOnline").get()
+
+        if lastOnlineTime is not None:
+            lastOnlineTime = float(lastOnlineTime)
+            if ((currentTime - lastOnlineTime)  < 20.00): #adjust seconds for 5.00 to increase accuracy
+                return "online"
+            else:
+                #set offline
+                db.reference("robots").child(str(sn)).update({"status": str("offline")})
+                return "offline"
+        else: 
+            #no such robot serial saved in firebase
+            return "offline"    
+            

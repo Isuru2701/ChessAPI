@@ -70,7 +70,7 @@ class Database:
             self.__game.child("board").set("")
 
         except exceptions.FirebaseError:
-            return "An error occurred. Are you connected to the internet?"
+            return "An error occurred. database.initialize()"
 
     def writeMove(self, move, board):
         """
@@ -163,7 +163,7 @@ class Database:
 
         if lastOnlineTime is not None:
             lastOnlineTime = float(lastOnlineTime)
-            if ((currentTime - lastOnlineTime)  < 20.00): #adjust seconds for 5.00 to increase accuracy
+            if ((currentTime - lastOnlineTime)  < 120.00): #adjust seconds for 5.00 to increase accuracy
                 return "online"
             else:
                 #set offline

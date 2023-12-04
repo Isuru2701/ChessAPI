@@ -30,8 +30,8 @@ def start():
 
     """============== validations =============="""
     # validate serial number .. is robot online ? 
-    if (sn is not None):
-        if (db.checkRobotOnline(str(sn)) != "online"):
+    if sn is not None:
+        if db.checkRobotOnline(str(sn)) != "online":
             return "Robot offline please try again!"
     #else : start a normal app game
     
@@ -63,7 +63,7 @@ def start():
 
 @app.route('/api/games/', methods=["POST"])
 def move():
-
+    pass
 
 
 @app.route('/api/games/board', methods=["POST"])

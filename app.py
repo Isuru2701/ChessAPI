@@ -31,8 +31,6 @@ def start():
 
     # generate token
     token = secrets.token_hex(16)
-    #TODO: SET FLAG FOR BLACK AND WHITE
-    #TODO: SETUP STRUCTURE
 
     db.initialize(id, token, elo)
 
@@ -47,19 +45,6 @@ def start():
 
 @app.route('/api/games/', methods=["POST"])
 def move():
-    """
-    make user move and make AI's move
-    if game over by move, return winner
-    if not, return AI move
-    """
-
-    db = Database()
-    game = db.loadGame(request.form["id"], request.form["token"])
-
-    game.makeMove(request.form["move"])
-    db.updateGame(request.form["id"], request.form["token"], game, request.form["move"])
-    if game.checkForGameOver() == "CHECKMATE":
-        return "PLAYER_WINS"
 
 
 

@@ -32,11 +32,8 @@ RETURNS
 
 ###  GET /api/games/?sn={sn}&elo={elo}&player={[BLACK | WHITE]}
     initializes the game. With difficulty set to the `elo` level
-    default elo is 1200.
+    default elo is 1200
 
-    Sets up robot with sn = {sn} to play with the user.
-
-    Sent from the mobile app
 
 SENDS TO ROBOT
 ```json
@@ -68,9 +65,11 @@ IF robot is not available
 }
 ```
 
+    RETURNS game id and token "id", "token"
+
 Use the id and token to access your game
 
-### POST /api/games/
+### POST /api/games/{move}
     make user move in the game. Uses the from-square to-square format. Returns AI move.
 ```json
 {
@@ -85,7 +84,7 @@ RETURNS
   "id": 0,
   "token": 0,
   "move": "e2e4",
-  "stockfish_move": "e7e5"
+  "best_move": "e7e5"
 }
 ```
 If illegal move RETURNS
@@ -93,9 +92,7 @@ If illegal move RETURNS
 {
   "id": 0,
   "token": 0,
-  "move": "illegal",
-  "state": "playing",
-  "stockfish_move": null
+  "illegal": true
 }
 ```
 
@@ -107,9 +104,24 @@ RETURNS
 {
   "id": 0,
   "token": 0,
-  "state": ["PLAYING", "STALEMATE", "GAME_OVER"],
+  "state": "playing",
   "board": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 }
 ```
-### DELETE /api/games/{id}?token={token}
-    Resign from game. Sent from mobile app.
+### PUT /api/games/{id}/resign
+    resign the game
+
+```json
+{
+  "id": 0,
+  "token": 0
+}
+```
+RETURNS
+```json
+{
+    "id": 0,
+    "token": 0,
+    "state": "resigned"
+}
+```

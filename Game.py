@@ -51,7 +51,11 @@ class Game:
         return move in self.__board.legal_moves
 
     def makeMove(self, moveStr):
-        """user makes move"""
+
+        """user makes move
+
+        :param moveStr: move in SAN format
+        """
 
         if not self.__game_over:
             if self.__isPlayerTurn:

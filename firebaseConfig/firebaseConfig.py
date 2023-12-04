@@ -3,6 +3,8 @@ from firebase_admin import credentials, db, exceptions
 import secrets
 from Game import Game
 import time
+import os
+import json
 
 class Database:
 
@@ -10,11 +12,11 @@ class Database:
         self.__game = None #a reference to the database's entry
         self.__url = "https://chess-13669-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
-        # Make an app in firebaseConfig > add realtime database > service accounts > generate new private key
-        # Add the json file to the same directory as this file and rename it to "firebaseconfig.json"
-        # This file isn't pushed to GitHub for security reasons.
+        # passing credentials as an environment variable
         try:
-            cred = credentials.Certificate(r"firebaseConfig/firebaseconfig.json")
+            cert = os.getenv("FIREBASE_CONFIG")
+            cert = json.loads(cert)
+            cred = credentials.Certificate(cert)
             try:
                 firebase_admin.initialize_app(cred, {
                     "databaseURL": self.__url

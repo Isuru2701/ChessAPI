@@ -30,33 +30,25 @@ class Database:
 
     def getLastGameId(self) -> int:
         """
-        fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
+        Fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
         :return: last game ID
         """
         try:
-            # make a new game index.
+            # Make a new game index.
             games = db.reference("games").get()
-            ids = [game['id'] for game in games]
+
+            # Convert 'id' to int, filtering out invalid entries
+            ids = [int(game['id']) for game in games if game is not None and 'id' in game and isinstance(game['id'], (int, str))]
+
+            # Check if the ids list is empty
+            if not ids:
+                print('No valid games found')
+                return 0
+
             return max(ids)
 
         except exceptions.FirebaseError:
-            print('first game')
-            return 0
-
-    def getLastMoveId(self, id, token) -> int:
-        """
-        fetches the last MOVE ID. Increment this by 1 to get the move ID for a new move.
-        :return: last game ID
-        """
-        try:
-            # make a new game index.
-            if self.exists(id, token):
-                moves = db.reference("games").child(str(id)).child("moves").get()
-                ids = [move for move in moves]
-                return max(ids)
-
-        except:
-            print('first move')
+            print('An error occurred. Are you connected to the internet?')
             return 0
 
 
@@ -86,8 +78,9 @@ class Database:
         self.__moveId += 1
 
     def exists(self, id, token):
-
-        ids = [game["id"] for game in db.reference("games").get()]
+        games = db.reference("games").get()
+        ids = [int(game['id']) for game in games if game is not None and 'id' in game and isinstance(game['id'], (int, str))]
+        id = int(id)
         if id in ids:
             details = db.reference("games").child(str(id)).get()
             if token == details["token"]:
@@ -129,7 +122,7 @@ class Database:
 
         if self.exists(id, token):
             game = db.reference("games").child(str(id)).get()
-            return Game(game["elo"], game["board"])
+            return {"elo": game["elo"], "board": str(game["board"])}
 
         return None
 
@@ -142,9 +135,8 @@ class Database:
         :return:
         """
         if self.exists(id, token):
-            self.__game = db.reference("games").child(str(game.getId()))
-        self.__game.child("board").set(game.getBoard())
-        self.__game.child("moves").child(str(self.getLastMoveId(id, token)+1)).set(move)
+            self.__game = db.reference("games").child(str(id))
+            self.__game.child("board").set(str(gamefen))
 
     def updateRobotStatus(self, sn, status):
         """
@@ -162,16 +154,16 @@ class Database:
         """
         currentTime = time.time()
         lastOnlineTime = db.reference("robots").child(sn).child("lastOnline").get()
-
+        currentStatus = db.reference("robots").child(sn).child("status").get()
         if lastOnlineTime is not None:
             lastOnlineTime = float(lastOnlineTime)
-            if ((currentTime - lastOnlineTime)  < 120.00): #adjust seconds for 5.00 to increase accuracy
-                return "online"
+            if ((currentTime - lastOnlineTime)  < 20.00 and currentStatus == "standby"): #adjust seconds for 5.00 to increase accuracy
+                return "available"
             else:
                 #set offline
                 db.reference("robots").child(str(sn)).update({"status": str("offline")})
-                return "offline"
+                return "offline or in use"
         else: 
             #no such robot serial saved in firebase
-            return "offline"    
+            return "offline : Robot Not found"
             

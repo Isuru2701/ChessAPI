@@ -1,6 +1,7 @@
 """
 Object for handling the game
 """
+import sys
 import chess
 import chess.engine
 class Game:
@@ -18,7 +19,6 @@ class Game:
             self.__board = chess.Board(board)
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
         self.__game_over = False
-        self.__isPlayerTurn = True
 
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:
@@ -50,57 +50,88 @@ class Game:
         """
         return move in self.__board.legal_moves
 
-    def makeMove(self, moveStr):
+    def makeMove(self, moveStr=None) -> str:
+        """User makes a move
 
-        """user makes move
-
-        :param moveStr: move in SAN format
+        :param moveStr: Move in SAN format
+        :return: AI's move in SAN format or game result
         """
+        if moveStr is not None:
+            user_move = chess.Move.from_uci(moveStr)
+            if not self.isLegalMove(user_move):
+                return "ILLEGAL_MOVE"
+            self.__board.push(user_move)
 
-        if not self.__game_over:
-            if self.__isPlayerTurn:
-                if self.isLegalMove(moveStr):
-                    self.__board.push_san(moveStr)
-                    ##AI's Turn next
-                    self.__isPlayerTurn = False
-                    return "OK"
-
-            return "NOT_YOUR_TURN"
-
-        return "GAME_OVER"
+        game_result = self.checkForGameOver()
+        if game_result == "NOT_OVER":
+            return self.stockfishMove()
+        else:
+            self.destroy()
+            return game_result
 
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""
-        result = self.__engine.play(self.__board, chess.engine.Limit(time=4.0))
+        result = self.__engine.play(self.__board, chess.engine.Limit(time=2.0))
         move = result.move
         self.__board.push(move)
-        # Back to the user
-        self.__aiMoves.append(move.uci())
-        self.__isPlayerTurn = True
 
         if self.__board.is_kingside_castling(move):
             return "O-O"
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
 
+        self.__board.push_uci(move.uci())
+
+        #if self.checkForGameOver():
+            #return "AI_WINS"   -- correctly handle this validation later
+
         return move.uci()
 
 
-    def checkForGameOver(self) -> bool:
+
+
+    def checkForGameOver(self) -> str:
         """Game over logic: check for
          - Checkmate
          - Stalemate
          - Draw
          - Resignation
          """
-        if self.__board.is_checkmate():
-            self.__game_over = True
+        if self.__board.is_stalemate():
+            return "STALEMATE"
 
-        return self.__game_over
+        if self.__board.is_checkmate():
+            return "CHECKMATE"
+
+        else:
+            return "NOT_OVER"
 
     def getBoard(self):
         return self.__board.fen()
 
     def setBoard(self, fenStr):
         self.__board.set_board_fen(fenStr)
+
+
+if __name__ == "__main__":
+    # Check if the correct number of command-line arguments is provided
+    if len(sys.argv) != 3:
+        print("Usage: python script_name.py elo move")
+        sys.exit(1)
+
+    # Extract Elo and move from command-line arguments
+    elo = int(sys.argv[1])
+    move = sys.argv[2]
+
+    # Create a Game instance with the specified Elo
+    game = Game(elo)
+
+    # Make the move and get the AI's response
+    ai_response = game.makeMove(move)
+
+    # Print the result
+    print(f"AI's response: {ai_response}")
+
+    # Close the engine
+    game.destroy()

@@ -1,6 +1,7 @@
 """
 Object for handling the game
 """
+import sys
 import chess
 import chess.engine
 class Game:
@@ -49,32 +50,44 @@ class Game:
         """
         return move in self.__board.legal_moves
 
-    def makeMove(self, moveStr) ->str:
-        """user makes move
+    def makeMove(self, moveStr=None) -> str:
+        """User makes a move
 
-        :param moveStr: move in SAN format
-        :return: AI's move in SAN format
+        :param moveStr: Move in SAN format
+        :return: AI's move in SAN format or game result
         """
+        if moveStr is not None:
+            user_move = chess.Move.from_uci(moveStr)
+            if not self.isLegalMove(user_move):
+                return "ILLEGAL_MOVE"
+            self.__board.push(user_move)
 
-
-
+        game_result = self.checkForGameOver()
+        if game_result == "NOT_OVER":
+            return self.stockfishMove()
+        else:
+            self.destroy()
+            return game_result
 
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""
-        result = self.__engine.play(self.__board, chess.engine.Limit(time=4.0))
+        result = self.__engine.play(self.__board, chess.engine.Limit(time=2.0))
         move = result.move
-        self.__board.push(move)
 
         if self.__board.is_kingside_castling(move):
             return "O-O"
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
 
-        if self.checkForGameOver():
-            return "AI_WINS"
+        self.__board.push_uci(move.uci())
+        
+        #if self.checkForGameOver():
+            #return "AI_WINS"   -- correctly handle this validation later
 
         return move.uci()
+
+
 
 
     def checkForGameOver(self) -> str:
@@ -98,3 +111,26 @@ class Game:
 
     def setBoard(self, fenStr):
         self.__board.set_board_fen(fenStr)
+
+
+if __name__ == "__main__":
+    # Check if the correct number of command-line arguments is provided
+    if len(sys.argv) != 3:
+        print("Usage: python script_name.py elo move")
+        sys.exit(1)
+
+    # Extract Elo and move from command-line arguments
+    elo = int(sys.argv[1])
+    move = sys.argv[2]
+
+    # Create a Game instance with the specified Elo
+    game = Game(elo)
+
+    # Make the move and get the AI's response
+    ai_response = game.makeMove(move)
+
+    # Print the result
+    print(f"AI's response: {ai_response}")
+
+    # Close the engine
+    game.destroy()        

@@ -6,10 +6,11 @@ import time
 import os
 import json
 
+
 class Database:
 
     def __init__(self):
-        self.__game = None #a reference to the database's entry
+        self.__game = None  # a reference to the database's entry
         self.__url = "https://chess-13669-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
         # passing credentials as an environment variable
@@ -27,7 +28,6 @@ class Database:
         except IOError | ValueError:
             print("Config file not found or is invalid. Please check your directory again")
 
-
     def getLastGameId(self) -> int:
         """
         Fetches the last GAME ID. Increment this by 1 to get the game ID for a new game.
@@ -38,7 +38,8 @@ class Database:
             games = db.reference("games").get()
 
             # Convert 'id' to int, filtering out invalid entries
-            ids = [int(game['id']) for game in games if game is not None and 'id' in game and isinstance(game['id'], (int, str))]
+            ids = [int(game['id']) for game in games if
+                   game is not None and 'id' in game and isinstance(game['id'], (int, str))]
 
             # Check if the ids list is empty
             if not ids:
@@ -51,9 +52,7 @@ class Database:
             print('An error occurred. Are you connected to the internet?')
             return 0
 
-
-
-    def initialize(self, id, token, elo):
+    def initialize(self, id, token, elo, sn):
 
         try:
             print(id)
@@ -62,6 +61,7 @@ class Database:
             self.__game.child("elo").set(elo)
             self.__game.child("token").set(token)
             self.__game.child("board").set("")
+            self.__game.child("robot").set(sn)  # store the robot's sn as well
 
         except exceptions.FirebaseError:
             return "An error occurred. database.initialize()"
@@ -75,11 +75,11 @@ class Database:
         """
         self.__game.child("moves").child().set(move)
         self.__game.child("board").set(board)
-        self.__moveId += 1
 
     def exists(self, id, token):
         games = db.reference("games").get()
-        ids = [int(game['id']) for game in games if game is not None and 'id' in game and isinstance(game['id'], (int, str))]
+        ids = [int(game['id']) for game in games if
+               game is not None and 'id' in game and isinstance(game['id'], (int, str))]
         id = int(id)
         if id in ids:
             details = db.reference("games").child(str(id)).get()
@@ -126,7 +126,7 @@ class Database:
 
         return None
 
-    def updateGame(self, id, token, game, move):
+    def updateGame(self, id, token, gamefen, move):
         """
         Updates the game in the database
         :param id:
@@ -147,23 +147,47 @@ class Database:
 
         db.reference("robots").child(str(sn)).update({"lastOnline": str(last_request_time)})
         db.reference("robots").child(str(sn)).update({"status": str(status)})
-        
+
     def checkRobotOnline(self, sn):
         """
         validate the RobotSerialNumber is Online, if Not set it Offline and return status[online\offline]
+        STATES: STANDBY, PLAYING, OFFLINE
         """
         currentTime = time.time()
         lastOnlineTime = db.reference("robots").child(sn).child("lastOnline").get()
         currentStatus = db.reference("robots").child(sn).child("status").get()
         if lastOnlineTime is not None:
             lastOnlineTime = float(lastOnlineTime)
-            if ((currentTime - lastOnlineTime)  < 20.00 and currentStatus == "standby"): #adjust seconds for 5.00 to increase accuracy
+            if ((
+                    currentTime - lastOnlineTime) < 120.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
+                db.reference("robots").child(str(sn)).update({"game": None}) # If on standby, clear previously tied game IDs
                 return "available"
             else:
-                #set offline
+                # set offline
                 db.reference("robots").child(str(sn)).update({"status": str("offline")})
                 return "offline or in use"
-        else: 
-            #no such robot serial saved in firebase
+        else:
+            # no such robot serial saved in firebase
             return "offline : Robot Not found"
-            
+
+    def getRobotStatus(self, sn):
+        """
+        get robot status from firebase
+        """
+        return db.reference("robots").child(sn).child("status").get()
+
+    def setRobotGame(self, sn, id):
+        """
+        set robot game in firebase. Establishes sort of a foreign key between game <-> robot
+        IMPORTANT: Call this method after a game ends with id=None to clear the old game.
+        :param id: game id
+        :return:
+        """
+
+        db.reference("robots").child(str(sn)).update({"game": str(id)})
+
+    def getRobotGame(self, sn):
+        """
+        get robot game from firebase
+        """
+        return db.reference("robots").child(sn).child("game").get()

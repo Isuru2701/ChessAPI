@@ -1,7 +1,7 @@
 from flask import Flask, request, session
 import json
 import secrets
-#from flask_cors import CORS
+from flask_cors import CORS
 
 
 #custom libraries
@@ -11,7 +11,7 @@ from firebaseConfig.firebaseConfig import Database
 
 app = Flask(__name__)   
 
-#CORS(app)
+CORS(app)
 
 @app.route('/api/games/',  methods=["POST"])
 def start():
@@ -37,6 +37,10 @@ def start():
             # Return current ID and token for monitoring the current game
             return db.checkRobotOnline(str(sn))  # This returns an error message
 
+        # setup robot for match
+        if db.getRobotStatus(str(sn)) == "standby":
+            db.updateRobotStatus(str(sn), "playing")
+
     # Else: start a normal app game (app vs engine)
     elo = data.get('elo')
     if elo is None or not str(elo).isnumeric():
@@ -49,7 +53,7 @@ def start():
         print(id)
         # Generate token
         token = secrets.token_hex(16)
-        db.initialize(id, token, elo)
+        db.initialize(id, token, elo, sn)
         if player == "white":
             return json.dumps(
                 {
@@ -106,7 +110,7 @@ def move():
     # if the game isnt over, return ai move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
 
-@app.route('/api/games/board/monitor', methods=["POST"])
+@app.route('/api/games/board/', methods=["POST"])
 def getBoard():
     db = Database()
     game = db.loadGame(request.form["id"], request.form["token"])
@@ -117,7 +121,12 @@ def getBoard():
  
 
 @app.route('/api/robots', methods=["POST"])
-def get_robot_status():
+def ping():
+    """
+    Robots send requests to this endpoint periodically to indicate that they are online
+    :return:
+    """
+
     # Ensure the request has a json object
     if not request.is_json:
         return "Invalid JSON request", 400
@@ -125,10 +134,13 @@ def get_robot_status():
     json_data = request.get_json()
     db = Database()
     sn = json_data["sn"]
-    status = json_data["status"]
 
-    db.updateRobotStatus(sn, status)
-    return "robot updated Successfull"
+    #check if robot is asked for a match yet
+    if db.getRobotGame() != None:
+
+
+    db.updateRobotStatus(sn, "standby")
+    return "ACK" #Acknowledgement OK
 
 
 if __name__ == '__main__':

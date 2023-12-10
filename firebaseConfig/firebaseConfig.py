@@ -16,7 +16,9 @@ class Database:
         # passing credentials as an environment variable
         try:
             cert = os.getenv("FIREBASE_CONFIG")
+            print(cert)
             cert = json.loads(cert)
+            print(cert)
             cred = credentials.Certificate(cert)
             try:
                 firebase_admin.initialize_app(cred, {
@@ -25,7 +27,7 @@ class Database:
             except ValueError:
                 print("An error occurred. Are you connected to the internet?")
 
-        except IOError | ValueError:
+        except IOError:
             print("Config file not found or is invalid. Please check your directory again")
 
     def getLastGameId(self) -> int:
@@ -191,3 +193,24 @@ class Database:
         get robot game from firebase
         """
         return db.reference("robots").child(sn).child("game").get()
+
+    def stageRobot(self,sn, json):
+
+        """
+        if a robot is requested for a game, add them to the staging area with the initial json
+        :param sn:
+        :return:
+        """
+        db.reference("stagingArea").child(str(sn)).set(json)
+
+
+    def destageRobot(self, sn):
+
+        db.reference("stagingArea").child(str(sn)).delete()
+
+    def getStagedRobots(self):
+
+        return db.reference("stagingArea").get()
+
+    def getRobotJson(self, sn):
+        return db.reference("robots").child(str(sn)).get()

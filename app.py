@@ -3,17 +3,16 @@ import json
 import secrets
 from flask_cors import CORS
 
-
-#custom libraries
+# custom libraries
 from Game import Game
 from firebaseConfig.firebaseConfig import Database
 
-
-app = Flask(__name__)   
+app = Flask(__name__)
 
 CORS(app)
 
-@app.route('/api/games/',  methods=["POST"])
+
+@app.route('/api/games/', methods=["POST"])
 def start():
     """
     Initialize a game
@@ -55,33 +54,43 @@ def start():
         token = secrets.token_hex(16)
         db.initialize(id, token, elo, sn)
         if player == "white":
-            return json.dumps(
-                {
-                    "id": id,
-                    "token": token,
-                    "elo": elo,
-                    "move": "send your first move to api/games/play"
-                }
-            )
+            reply = {
+                "id": id,
+                "token": token,
+                "elo": elo,
+                "move": "send your first move to api/games/play"
+            }
+            # if a robot is selected, add this json to the staging area instead
+            if sn:
+                db.stageRobot(sn, reply)
+                return "Robot staged for match"
+
+            return json.dumps(reply)
+
         elif player == "black":
-            NewGame = Game(elo, board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")#initialize the fen
+            NewGame = Game(elo, board="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")  # initialize the fen
             move = NewGame.makeMove()
             print(NewGame.getBoard())
             db.updateGame(id, token, NewGame.getBoard())
-            return json.dumps(
-                {
-                    "id": id,
-                    "token": token,
-                    "elo": elo,
-                    "move": move
-                }
-            )
+            reply = {
+                "id": id,
+                "token": token,
+                "elo": elo,
+                "move": move
+            }
+
+            if sn:
+                db.stageRobot(sn, reply)
+                return "Robot staged for match"
+
+            return json.dumps(reply)
+
     else:
         return "please select player color"
     """========================================="""
 
 
-@app.route('/api/games/play', methods=["POST"]) #confirmly gets a move in request object
+@app.route('/api/games/play', methods=["POST"])  # confirmly gets a move in request object
 def move():
     """
     Make user move and make AI's move.
@@ -101,7 +110,7 @@ def move():
     # Set up Game object, passing the elo with board situation
     currentGame = Game(int(game["elo"]), str(game["board"]))
     ai_move = currentGame.makeMove(user_move)  # Updating the game instance
-    db.updateGame(game_id, token, currentGame.getBoard())  #Updating the database
+    db.updateGame(game_id, token, currentGame.getBoard())  # Updating the database
 
     # Check for game over
     if currentGame.checkForGameOver() == "CHECKMATE":
@@ -109,6 +118,7 @@ def move():
 
     # if the game isnt over, return ai move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
+
 
 @app.route('/api/games/board/', methods=["POST"])
 def getBoard():
@@ -118,7 +128,7 @@ def getBoard():
         return game.getBoard()
 
     return "Game not found"
- 
+
 
 @app.route('/api/robots', methods=["POST"])
 def ping():
@@ -135,12 +145,12 @@ def ping():
     db = Database()
     sn = json_data["sn"]
 
-    #check if robot is asked for a match yet
-    if db.getRobotGame() != None:
-
+    # check if robot is asked for a match yet
+    if sn in db.getStagedRobots():
+        return db.getRobotJson(sn)
 
     db.updateRobotStatus(sn, "standby")
-    return "ACK" #Acknowledgement OK
+    return "ACK"  # Acknowledgement OK
 
 
 if __name__ == '__main__':

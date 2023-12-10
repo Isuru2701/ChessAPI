@@ -38,7 +38,10 @@ def start():
 
         # setup robot for match
         if db.getRobotStatus(str(sn)) == "standby":
-            db.updateRobotStatus(str(sn), "playing")
+            db.updateRobotStatus(str(sn), "staged")
+
+    else:
+        sn = None #allow for web-client to web-client play
 
     # Else: start a normal app game (app vs engine)
     elo = data.get('elo')
@@ -58,6 +61,7 @@ def start():
                 "id": id,
                 "token": token,
                 "elo": elo,
+                "robot": sn,
                 "move": "send your first move to api/games/play"
             }
             # if a robot is selected, add this json to the staging area instead
@@ -76,6 +80,7 @@ def start():
                 "id": id,
                 "token": token,
                 "elo": elo,
+                "robot": sn,
                 "move": move
             }
 
@@ -147,6 +152,7 @@ def ping():
 
     # check if robot is asked for a match yet
     stagedBots = db.getStagedRobots()
+    print(stagedBots)
     if stagedBots is not None:
         if sn in db.getStagedRobots():
 

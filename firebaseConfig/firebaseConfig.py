@@ -19,11 +19,11 @@ class Database:
             cert = json.loads(cert)
             cred = credentials.Certificate(cert)
             try:
-                firebase_admin.initialize_app(cred, {
+                app = firebase_admin.initialize_app(cred, {
                     "databaseURL": self.__url
                 })
             except ValueError:
-                print("VALUE_ERROR: Database .__init__")
+                print("VALUE_ERROR: Database .__init__ app instance already exists or something else went wrong")
 
         except IOError:
             print("IOError: Database .__init__ Config file not found")
@@ -162,6 +162,8 @@ class Database:
                     currentTime - lastOnlineTime) < 120.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
                 db.reference("robots").child(str(sn)).update({"game": None}) # If on standby, clear previously tied game IDs
                 return "available"
+            elif db.reference("robots").child(str(sn)).child('status').get() == 'staged':
+                return "robot is staged for a match"
             else:
                 # set offline
                 db.reference("robots").child(str(sn)).update({"status": str("offline")})
@@ -209,10 +211,15 @@ class Database:
     def getStagedRobots(self):
 
         robots = db.reference("stagingArea").get()
+        print(robots)
         if robots is not None:
-            return list(db.reference("stagingArea").get())
+            ids = [int(robot['robot']) for robot in robots if
+                   robot is not None and 'robot' in robot and isinstance(robot['robot'], (int, str))]
+            print(ids)
+            return ids
         else:
             return None
 
     def getRobotJson(self, sn):
+        print(db.reference("robots").child(str(sn)).get())
         return db.reference("robots").child(str(sn)).get()

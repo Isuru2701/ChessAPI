@@ -16,9 +16,7 @@ class Database:
         # passing credentials as an environment variable
         try:
             cert = os.getenv("FIREBASE_CONFIG")
-            print(cert)
             cert = json.loads(cert)
-            print(cert)
             cred = credentials.Certificate(cert)
             try:
                 firebase_admin.initialize_app(cred, {
@@ -210,7 +208,11 @@ class Database:
 
     def getStagedRobots(self):
 
-        return db.reference("stagingArea").get()
+        robots = db.reference("stagingArea").get()
+        if robots is not None:
+            return list(db.reference("stagingArea").get())
+        else:
+            return None
 
     def getRobotJson(self, sn):
         return db.reference("robots").child(str(sn)).get()

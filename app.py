@@ -146,11 +146,14 @@ def ping():
     sn = json_data["sn"]
 
     # check if robot is asked for a match yet
-    if sn in db.getStagedRobots():
-        return db.getRobotJson(sn)
+    stagedBots = db.getStagedRobots()
+    if stagedBots is not None:
+        if sn in db.getStagedRobots():
+            return db.getRobotJson(sn)
 
     db.updateRobotStatus(sn, "standby")
     return "ACK"  # Acknowledgement OK
+
 
 
 if __name__ == '__main__':

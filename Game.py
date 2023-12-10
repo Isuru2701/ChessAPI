@@ -80,11 +80,8 @@ class Game:
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
 
-        self.__board.push_uci(move.uci())
-
         #if self.checkForGameOver():
             #return "AI_WINS"   -- correctly handle this validation later
-
         return move.uci()
 
 

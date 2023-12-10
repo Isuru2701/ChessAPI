@@ -68,7 +68,7 @@ def start():
             return json.dumps(reply)
 
         elif player == "black":
-            NewGame = Game(elo, board="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR")  # initialize the fen
+            NewGame = Game(elo)  # initialize the fen
             move = NewGame.makeMove()
             print(NewGame.getBoard())
             db.updateGame(id, token, NewGame.getBoard())
@@ -151,14 +151,14 @@ def ping():
         if sn in db.getStagedRobots():
 
             # bot has accepted game. set bot to playing
-            db.updateRobotStatus(sn, "PLAYING")
+            db.updateRobotStatus(sn, "playing")
 
             return db.getRobotJson(sn)
 
 
 
 
-    db.updateRobotStatus(sn, "STANDY")
+    db.updateRobotStatus(sn, "standby")
     return "ACK"  # Acknowledgement OK
 
     #TODO: setup a service to check if a bot is online within a threshold (~120seconds) if not, set to offline

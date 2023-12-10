@@ -23,10 +23,10 @@ class Database:
                     "databaseURL": self.__url
                 })
             except ValueError:
-                print("An error occurred. Are you connected to the internet?")
+                print("VALUE_ERROR: Database .__init__")
 
         except IOError:
-            print("Config file not found or is invalid. Please check your directory again")
+            print("IOError: Database .__init__ Config file not found")
 
     def getLastGameId(self) -> int:
         """
@@ -49,7 +49,7 @@ class Database:
             return max(ids)
 
         except exceptions.FirebaseError:
-            print('An error occurred. Are you connected to the internet?')
+            print('FIREBASE_ERROR Database getLastGameId()')
             return 0
 
     def initialize(self, id, token, elo, sn):
@@ -126,7 +126,7 @@ class Database:
 
         return None
 
-    def updateGame(self, id, token, gamefen, move):
+    def updateGame(self, id, token, gamefen):
         """
         Updates the game in the database
         :param id:

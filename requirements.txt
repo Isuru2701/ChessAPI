@@ -3,3 +3,4 @@ chess
 firebase_admin
 APScheduler
 flask_cors
+python-dotenv

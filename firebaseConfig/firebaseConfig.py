@@ -215,11 +215,16 @@ class Database:
         if robots is not None:
             ids = [int(robot['robot']) for robot in robots if
                    robot is not None and 'robot' in robot and isinstance(robot['robot'], (int, str))]
-            print(ids)
-            return ids
+            if isinstance(ids, list):
+                print(ids)
+                return ids  # If it's already a list, return as is
+            else:
+                ids = [ids]
+                print(ids)
+                return ids
         else:
             return None
 
     def getRobotJson(self, sn):
-        print(db.reference("robots").child(str(sn)).get())
-        return db.reference("robots").child(str(sn)).get()
+        print(db.reference("stagingArea").child(str(sn)).get())
+        return db.reference("stagingArea").child(str(sn)).get()

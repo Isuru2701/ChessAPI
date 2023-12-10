@@ -149,12 +149,19 @@ def ping():
     stagedBots = db.getStagedRobots()
     if stagedBots is not None:
         if sn in db.getStagedRobots():
+
+            # bot has accepted game. set bot to playing
+            db.updateRobotStatus(sn, "PLAYING")
+
             return db.getRobotJson(sn)
 
-    db.updateRobotStatus(sn, "standby")
+
+
+
+    db.updateRobotStatus(sn, "STANDY")
     return "ACK"  # Acknowledgement OK
 
-
+    #TODO: setup a service to check if a bot is online within a threshold (~120seconds) if not, set to offline
 
 if __name__ == '__main__':
     app.run(debug=True)

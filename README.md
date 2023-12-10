@@ -30,9 +30,16 @@ RETURNS
 `200 OK`
 
 
-###  GET /api/games/?sn={sn}&elo={elo}&player={[BLACK | WHITE]}
+###  POST /api/games/
     initializes the game. With difficulty set to the `elo` level
     default elo is 1200
+```json
+{
+  "sn": 1,
+  "elo": 1200,
+  "player": ["BLACK", "WHITE"]
+}
+```
 
 
 SENDS TO ROBOT

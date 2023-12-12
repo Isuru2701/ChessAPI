@@ -95,7 +95,7 @@ def start():
     """========================================="""
 
 
-@app.route('/api/games/play', methods=["POST"])  # confirmly gets a move in request object
+@app.route('/api/games/play', methods=["POST"])  # gets a move in request object
 def move():
     """
     Make user move and make AI's move.

@@ -125,6 +125,7 @@ def move():
     if currentGame.checkForGameOver() == "CHECKMATE":
         # if game over, reset robot to standby state
         db.updateRobotStatus(sn, 'standby')
+        db.destageRobot(sn)
         return json.dumps({"result": "CHECKMATE", "move":None})
 
 
@@ -136,6 +137,7 @@ def move():
     if currentGame.checkForGameOver() == "CHECKMATE":
         # if game over, reset robot to standby state
         db.updateRobotStatus(sn, 'standby')
+        db.destageRobot(sn)
         return json.dumps({"result": "CHECKMATE", "move":ai_move})
 
     # if the game isn't over, return AI move in a json object
@@ -144,8 +146,14 @@ def move():
 
 @app.route('/api/games/board', methods=["POST"])
 def getBoard():
+
+    data = request.get_json()
+    id = data.get('id')
+    token = data.get('token')
+
     db = Database()
-    game = db.loadGame(request.form["id"], request.form["token"])
+
+    game = db.loadGame(id, token)
     if game is not None:
         return game.getBoard()
 

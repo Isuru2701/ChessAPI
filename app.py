@@ -22,7 +22,7 @@ def start():
     Return id, token, and elo
     :return:
     """
-    global last_request_time
+    global last_request_time #TODO: is this needed? remove it if it isn't
     db = Database()
 
     # Assume the request contains JSON data
@@ -64,16 +64,16 @@ def start():
                 "robot": sn,
                 "move": None
             }
-            # if a robot is selected, add this json to the staging area instead
+
             if sn:
+                # if a robot is selected, add this json to the staging area instead
                 db.stageRobot(sn, reply)
-                return "Robot staged for match"
 
             return json.dumps(reply)
 
         elif player == "black":
             NewGame = Game(elo)  # initialize the fen
-            move = NewGame.makeMove()
+            move = NewGame.stockfishMove()
             print(NewGame.getBoard())
             db.updateGame(id, token, NewGame.getBoard())
             reply = {
@@ -86,9 +86,8 @@ def start():
 
             if sn:
                 db.stageRobot(sn, reply)
-                return "Robot staged for match"
 
-            return json.dumps(reply)
+            return json.dumps(reply) #return payload as well cuz the UI service needs the id and token as well
 
     else:
         return "please select player color"
@@ -109,20 +108,37 @@ def move():
     game_id = data.get("id")
     token = data.get("token")
     user_move = data.get("move")
+    sn = data.get("sn") # needed to update robot status if game over
 
     db = Database()
     game = db.loadGame(game_id, token)  # Loading game from database using id and token
     # Set up Game object, passing the elo with board situation
     currentGame = Game(int(game["elo"]), str(game["board"]))
-    ai_move = currentGame.makeMove(user_move)  # Updating the game instance
+
+    result = currentGame.makeMove(user_move)
+    db.updateGame(game_id, token, currentGame.getBoard())
+
+    if result == "ILLEGAL_MOVE":
+        return "ILLEGAL_MOVE"
+
+    #Check if the move the user made led to a checkmate against the robot
+    if currentGame.checkForGameOver() == "CHECKMATE":
+        # if game over, reset robot to standby state
+        db.updateRobotStatus(sn, 'standby')
+        return json.dumps({"result": "CHECKMATE", "move":None})
+
+
+
+    ai_move = currentGame.stockfishMove()
     db.updateGame(game_id, token, currentGame.getBoard())  # Updating the database
 
-    # Check for game over
+    # Check for game over by the move the AI made
     if currentGame.checkForGameOver() == "CHECKMATE":
-        return json.dumps({"result": "PLAYER_WINS"})
+        # if game over, reset robot to standby state
+        db.updateRobotStatus(sn, 'standby')
+        return json.dumps({"result": "CHECKMATE", "move":ai_move})
 
-    # TODO: logic for gameover
-    # if the game isnt over, return ai move in a json object
+    # if the game isn't over, return AI move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
 
 

@@ -61,13 +61,6 @@ class Game:
                 return "ILLEGAL_MOVE"
             self.__board.push(user_move)
 
-        game_result = self.checkForGameOver()
-        if game_result == "NOT_OVER":
-            return self.stockfishMove()
-        else:
-            self.destroy()
-            return game_result
-
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""

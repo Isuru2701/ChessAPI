@@ -103,6 +103,7 @@ endpoint: `/api/games/play` | method: `POST`
 {
   "id": 0,
   "token": 0,
+  "sn": 1,
   "move": "e2e4"
 }
 ```

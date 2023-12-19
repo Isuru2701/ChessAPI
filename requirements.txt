@@ -5,5 +5,3 @@ APScheduler
 flask_cors
 python-dotenv
 pyOpenSSL
-json
-sys

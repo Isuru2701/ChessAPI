@@ -4,6 +4,4 @@ firebase_admin
 APScheduler
 flask_cors
 python-dotenv
-secrets
-json
-sys
+pyOpenSSL

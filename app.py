@@ -121,6 +121,7 @@ def move():
     if currentGame.checkForGameOver() == "CHECKMATE":
         return json.dumps({"result": "PLAYER_WINS"})
 
+    # TODO: logic for gameover
     # if the game isnt over, return ai move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
 

@@ -35,9 +35,7 @@ The robot sends a POST request to the API with the following payload:
 endpoint: `/api/robots/` | method: `POST`
 ```json
 {
-  "sn": 1,
-  "online": true,
-  "status": ["standby", "playing"]
+  "sn": 1
 }
 ```
 
@@ -53,7 +51,7 @@ endpoint: `/api/games/` | method: `POST`
 {
   "sn": 1,
   "elo": 1200,
-  "player": ["BLACK", "WHITE"]
+  "player": ["black", "white"]
 }
 ```
 
@@ -170,3 +168,8 @@ RETURNS
   "move": null
 }
 ```
+
+# Get Board
+Access this endpoint with your UI to fetch the current board
+endpoint: `/api/games/{id}/board` | method: `GET`
+RETURNS `FEN` string

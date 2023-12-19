@@ -37,13 +37,17 @@ class Database:
             # Make a new game index.
             games = db.reference("games").get()
 
+
             # Convert 'id' to int, filtering out invalid entries
-            ids = [int(game['id']) for game in games if
+            try:
+                ids = [int(game['id']) for game in games if
                    game is not None and 'id' in game and isinstance(game['id'], (int, str))]
+            except:
+                ids = []
 
             # Check if the ids list is empty
             if not ids:
-                print('No valid games found')
+                print('First game')
                 return 0
 
             return max(ids)
@@ -159,7 +163,7 @@ class Database:
         if lastOnlineTime is not None:
             lastOnlineTime = float(lastOnlineTime)
             if ((
-                    currentTime - lastOnlineTime) < 120.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
+                    currentTime - lastOnlineTime) < 1200.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
                 db.reference("robots").child(str(sn)).update({"game": None}) # If on standby, clear previously tied game IDs
                 return "available"
             elif db.reference("robots").child(str(sn)).child('status').get() == 'staged':

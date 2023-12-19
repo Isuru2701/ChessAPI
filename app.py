@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-@app.route('/api/games/', methods=["POST"])
+@app.route('/api/games', methods=["POST"])
 def start():
     """
     Initialize a game
@@ -62,7 +62,7 @@ def start():
                 "token": token,
                 "elo": elo,
                 "robot": sn,
-                "move": "send your first move to api/games/play"
+                "move": None
             }
             # if a robot is selected, add this json to the staging area instead
             if sn:
@@ -126,7 +126,7 @@ def move():
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
 
 
-@app.route('/api/games/board/', methods=["POST"])
+@app.route('/api/games/board', methods=["POST"])
 def getBoard():
     db = Database()
     game = db.loadGame(request.form["id"], request.form["token"])
@@ -167,8 +167,6 @@ def ping():
 
     db.updateRobotStatus(sn, "standby")
     return "ACK"  # Acknowledgement OK
-
-    #TODO: setup a service to check if a bot is online within a threshold (~120seconds) if not, set to offline
 
 if __name__ == '__main__':
     app.run(debug=True)

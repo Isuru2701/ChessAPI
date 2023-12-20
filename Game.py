@@ -4,6 +4,7 @@ Object for handling the game
 import sys
 import chess
 import chess.engine
+import os
 class Game:
     """
     Represents the game
@@ -17,7 +18,7 @@ class Game:
             self.__board = chess.Board()
         else:
             self.__board = chess.Board(board)
-        self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
+        self.__engine = chess.engine.SimpleEngine.popen_uci( os.path.join("stockfish", "stockfish-windows-x86-64-avx2.exe"))
 
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:

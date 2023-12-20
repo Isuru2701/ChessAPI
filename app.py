@@ -10,6 +10,7 @@ from firebaseConfig.firebaseConfig import Database
 app = Flask(__name__)
 
 CORS(app)
+CORS(app, origins='https://localhost/CHESSROBO/', supports_credentials=True)
 
 
 @app.route('/api/games', methods=["POST"])
@@ -54,7 +55,9 @@ def start():
         id = db.getLastGameId() + 1
         print(id)
         # Generate token
+        
         token = secrets.token_hex(16)
+        
         db.initialize(id, token, elo, sn)
         if player == "white":
             reply = {
@@ -62,7 +65,7 @@ def start():
                 "token": token,
                 "elo": elo,
                 "robot": sn,
-                "move": None
+                "move": None,
             }
 
             if sn:
@@ -72,6 +75,7 @@ def start():
             return json.dumps(reply)
 
         elif player == "black":
+            
             NewGame = Game(elo)  # initialize the fen
             move = NewGame.stockfishMove()
             print(NewGame.getBoard())
@@ -119,26 +123,37 @@ def move():
     db.updateGame(game_id, token, currentGame.getBoard())
 
     if result == "ILLEGAL_MOVE":
-        return "ILLEGAL_MOVE"
+        response = {
+            "move": "ILLEGAL_MOVE"
+        }
+        return json.dumps(response)
 
-    #Check if the move the user made led to a checkmate against the robot
-    if currentGame.checkForGameOver() == "CHECKMATE":
-        # if game over, reset robot to standby state
-        db.updateRobotStatus(sn, 'standby')
-        db.destageRobot(sn)
-        return json.dumps({"result": "CHECKMATE", "move":None})
+    if sn is not None: 
+        #Check if the move the user made led to a checkmate against the robot
+        if currentGame.checkForGameOver() == "CHECKMATE":
+            # if game over, reset robot to standby state
+            db.updateRobotStatus(sn, 'standby')
+            db.destageRobot(sn)
+            return json.dumps({"result": "CHECKMATE", "move":None})
+    else: 
+        if currentGame.checkForGameOver() == "CHECKMATE":
+            return json.dumps({"result": "CHECKMATE", "move":None}) #case of app vs engine games end
 
 
 
     ai_move = currentGame.stockfishMove()
     db.updateGame(game_id, token, currentGame.getBoard())  # Updating the database
 
-    # Check for game over by the move the AI made
-    if currentGame.checkForGameOver() == "CHECKMATE":
-        # if game over, reset robot to standby state
-        db.updateRobotStatus(sn, 'standby')
-        db.destageRobot(sn)
-        return json.dumps({"result": "CHECKMATE", "move":ai_move})
+    if sn is not None: 
+        # Check for game over by the move the AI made
+        if currentGame.checkForGameOver() == "CHECKMATE":
+            # if game over, reset robot to standby state
+            db.updateRobotStatus(sn, 'standby')
+            db.destageRobot(sn)
+            return json.dumps({"result": "CHECKMATE", "move":ai_move})
+    else:
+        if currentGame.checkForGameOver() == "CHECKMATE":
+            return json.dumps({"result": "CHECKMATE", "move":ai_move}) #case of app vs engine games end by engine
 
     # if the game isn't over, return AI move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})

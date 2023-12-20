@@ -18,7 +18,7 @@ class Game:
         else:
             self.__board = chess.Board(board)
         self.__engine = chess.engine.SimpleEngine.popen_uci(r"stockfish\stockfish-windows-x86-64-avx2.exe")
-
+        elo = int(elo)
         # refer to the following for skill level to elo mapping https://lichess.org/forum/general-chess-discussion/elo-of-lichess-ais?page=1
         if elo < 800:
             self.__engine.configure({"UCI_LimitStrength": True, "Skill level": 0})

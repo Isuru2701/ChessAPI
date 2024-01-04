@@ -73,17 +73,18 @@ class Game:
 
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""
-        result = self.__engine.play(self.__board, chess.engine.Limit(time=2.0))
-        move = result.move
+        while True:
+            result = self.__engine.play(self.__board, chess.engine.Limit(time=2.0))
+            move = result.move
+            if (self.isLegalMove(move)):
+                break
         self.__board.push(move)
 
         if self.__board.is_kingside_castling(move):
             return "O-O"
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
-
-        #if self.checkForGameOver():
-            #return "AI_WINS"   -- correctly handle this validation later
+        
         return move.uci()
 
 

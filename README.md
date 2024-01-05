@@ -172,5 +172,12 @@ RETURNS
 
 # Get Board
 Access this endpoint with your UI to fetch the current board
-endpoint: `/api/games/{id}/board` | method: `GET`
+endpoint: `/api/games/board` | method: `POST`
+
+```json
+{
+  "id": 0,
+  "token": 0
+}
+```
 RETURNS `FEN` string

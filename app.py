@@ -10,7 +10,6 @@ from firebaseConfig.firebaseConfig import Database
 app = Flask(__name__)
 
 CORS(app)
-CORS(app, origins='https://localhost/CHESSROBO/', supports_credentials=True)
 
 
 @app.route('/api/games', methods=["POST"])

@@ -65,8 +65,10 @@ class Database:
             self.__game.child("elo").set(elo)
             self.__game.child("token").set(token)
             self.__game.child("board").set("")
-            self.__game.child("robot").set(sn)  # store the robot's sn as well
-
+            if sn is None: # store the robot's sn as well  | we need to handle the case when sn is None
+                self.__game.child("robot").set("") 
+            else:
+                self.__game.child("robot").set(sn)  
         except exceptions.FirebaseError:
             return "An error occurred. database.initialize()"
 

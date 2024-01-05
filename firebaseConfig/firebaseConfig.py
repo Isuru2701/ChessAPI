@@ -128,7 +128,7 @@ class Database:
 
         if self.exists(id, token):
             game = db.reference("games").child(str(id)).get()
-            return {"elo": game["elo"], "board": str(game["board"])}
+            return Game(game["elo"], str(game["board"]))
 
         return None
 

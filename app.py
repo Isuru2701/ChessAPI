@@ -177,9 +177,10 @@ def ping():
 
     # check if robot is asked for a match yet
     stagedBots = db.getStagedRobots()
-    print(stagedBots)
+    print("staged: ", stagedBots)
     if stagedBots is not None:
         if sn in db.getStagedRobots():
+
 
             # bot has accepted game. set bot to playing
             db.updateRobotStatus(sn, "playing")
@@ -191,6 +192,10 @@ def ping():
 
     db.updateRobotStatus(sn, "standby")
     return "ACK"  # Acknowledgement OK
+
+
+#TODO: add endpoint for reset
+
 
 if __name__ == '__main__':
     app.run(debug=True)

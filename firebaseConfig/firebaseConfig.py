@@ -217,14 +217,22 @@ class Database:
         robots = db.reference("stagingArea").get()
         print(robots)
         if robots is not None:
-            ids = [int(robot['robot']) for robot in robots if
-                   robot is not None and 'robot' in robot and isinstance(robot['robot'], (int, str))]
-            if isinstance(ids, list):
+            # ids = [int(robot['robot']) for robot in robots if
+            #        robot is not None and 'robot' in robot and isinstance(robot['robot'], (int, str))]
+            #
+
+            ids = []
+            for robot in robots:
+                print("robot: ", robot)
+                ids.append(int(robot))
                 print(ids)
+
+            if isinstance(ids, list):
+                print("here ",ids)
                 return ids  # If it's already a list, return as is
             else:
                 ids = [ids]
-                print(ids)
+                print("in else", ids)
                 return ids
         else:
             return None

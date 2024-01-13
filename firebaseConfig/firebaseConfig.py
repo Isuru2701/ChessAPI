@@ -18,12 +18,14 @@ class Database:
             cert = os.getenv("FIREBASE_CONFIG")
             cert = json.loads(cert)
             cred = credentials.Certificate(cert)
-            try:
-                app = firebase_admin.initialize_app(cred, {
-                    "databaseURL": self.__url
-                })
-            except ValueError:
-                print("VALUE_ERROR: Database .__init__ app instance already exists or something else went wrong")
+            # Check if the app has already been initialized
+            if not firebase_admin._apps:
+                try:
+                    app = firebase_admin.initialize_app(cred, {
+                        "databaseURL": self.__url
+                    })
+                except ValueError:
+                    print("VALUE_ERROR: Database .__init__ app instance already exists or something else went wrong")
 
         except IOError:
             print("IOError: Database .__init__ Config file not found")
@@ -91,7 +93,6 @@ class Database:
             details = db.reference("games").child(str(id)).get()
             if token == details["token"]:
                 return True
-
         return False
 
     def loadBoard(self, id, token) -> str:
@@ -125,11 +126,11 @@ class Database:
         :param token:
         :return: Game if present, None if not
         """
-
         if self.exists(id, token):
             game = db.reference("games").child(str(id)).get()
-            return Game(game["elo"], str(game["board"]))
+            return Game(int(game["elo"]), str(game["board"]))
 
+        print("Token mis match")
         return None
 
     def updateGame(self, id, token, gamefen):
@@ -161,18 +162,35 @@ class Database:
         """
         currentTime = time.time()
         lastOnlineTime = db.reference("robots").child(sn).child("lastOnline").get()
-        currentStatus = db.reference("robots").child(sn).child("status").get()
+        currentStatus = db.reference("robots").child(str(sn)).child("status").get()
+        
         if lastOnlineTime is not None:
             lastOnlineTime = float(lastOnlineTime)
             if ((
-                    currentTime - lastOnlineTime) < 1200.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
+                    currentTime - lastOnlineTime) < 5.00 and currentStatus == "standby"):  # adjust seconds for 5.00 to increase accuracy
                 db.reference("robots").child(str(sn)).update({"game": None}) # If on standby, clear previously tied game IDs
                 return "available"
-            elif db.reference("robots").child(str(sn)).child('status').get() == 'staged':
-                return "robot is staged for a match"
+            
+            elif currentStatus == 'staged':
+                #getGame data and return a description.. jsonify it in controller and return to UI
+                game = db.reference("stagingArea").child(sn)
+                game_id = game.child("id").get()
+                game_token = game.child("token").get()
+                game_robot_sn = game.child("robot").get()
+                game_elo = game.child("elo").get()
+                game_details = {"id": str(game_id), "token": str(game_token), "robot": str(game_robot_sn),"elo": str(game_elo), "message": "robot is staged for a match"}
+                return game_details
+            
+            elif currentStatus == "playing":
+                #getGame data and return a description.. jsonify it in controller and return to UI
+                game = db.reference("stagingArea").child(sn)
+                game_id = game.child("id").get()
+                game_token = game.child("token").get()
+                game_robot_sn = game.child("robot").get()
+                game_elo = game.child("elo").get()
+                game_details = {"id": str(game_id), "token": str(game_token), "robot": str(game_robot_sn),"elo": str(game_elo), "message": "robot is playing"}
+                return game_details
             else:
-                # set offline
-                db.reference("robots").child(str(sn)).update({"status": str("offline")})
                 return "offline or in use"
         else:
             # no such robot serial saved in firebase

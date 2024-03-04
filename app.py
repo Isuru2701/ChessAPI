@@ -30,7 +30,7 @@ def test3():
     Return id, token, and elo
     :return:
     """
-    global last_request_time #TODO: is this needed? remove it if it isn't
+    global last_request_time  # TODO: is this needed? remove it if it isn't
     db = Database()
 
     # Assume the request contains JSON data
@@ -42,14 +42,14 @@ def test3():
     if sn:
         if db.checkRobotOnline(str(sn)) != "available":
             # Return current ID and token for monitoring the current game
-            return jsonify(db.checkRobotOnline(str(sn))) #now this returns a object including the message
+            return jsonify(db.checkRobotOnline(str(sn)))  # now this returns a object including the message
 
         # setup robot for match
         if db.getRobotStatus(str(sn)) == "standby":
             db.updateRobotStatus(str(sn), "staged")
 
     else:
-        sn = None #allow for web-client to web-client play
+        sn = None  # allow for web-client to web-client play
 
     # Else: start a normal app game (app vs engine)
     elo = data.get('elo')
@@ -62,9 +62,9 @@ def test3():
         id = db.getLastGameId() + 1
         print(id)
         # Generate token
-        
+
         token = secrets.token_hex(16)
-        
+
         db.initialize(id, token, elo, sn)
         if player == "white":
             reply = {
@@ -82,7 +82,7 @@ def test3():
             return json.dumps(reply)
 
         elif player == "black":
-            
+
             NewGame = Game(elo)  # initialize the fen
             move = NewGame.stockfishMove()
             print(NewGame.getBoard())
@@ -98,7 +98,7 @@ def test3():
             if sn:
                 db.stageRobot(sn, reply)
 
-            return json.dumps(reply) #return payload as well cuz the UI service needs the id and token as well
+            return json.dumps(reply)  # return payload as well cuz the UI service needs the id and token as well
 
     else:
         return "please select player color"
@@ -119,7 +119,7 @@ def move():
     game_id = data.get("id")
     token = data.get("token")
     user_move = data.get("move")
-    sn = data.get("sn") # needed to update robot status if game over
+    sn = data.get("sn")  # needed to update robot status if game over
 
     db = Database()
     game = db.loadGame(game_id, token)  # Loading game from database using id and token
@@ -133,32 +133,30 @@ def move():
         }
         return json.dumps(response)
 
-    if sn is not None: 
-        #Check if the move the user made led to a checkmate against the robot
+    if sn is not None:
+        # Check if the move the user made led to a checkmate against the robot
         if game.checkForGameOver() == "CHECKMATE":
             # if game over, reset robot to standby state
             db.updateRobotStatus(sn, 'standby')
             db.destageRobot(sn)
-            return json.dumps({"result": "CHECKMATE", "move":None})
-    else: 
+            return json.dumps({"result": "CHECKMATE", "move": None})
+    else:
         if game.checkForGameOver() == "CHECKMATE":
-            return json.dumps({"result": "CHECKMATE", "move":None}) #case of app vs engine games end
-
-
+            return json.dumps({"result": "CHECKMATE", "move": None})  # case of app vs engine games end
 
     ai_move = game.stockfishMove()
     db.updateGame(game_id, token, game.getBoard())  # Updating the database
 
-    if sn is not None: 
+    if sn is not None:
         # Check for game over by the move the AI made
         if game.checkForGameOver() == "CHECKMATE":
             # if game over, reset robot to standby state
             db.updateRobotStatus(sn, 'standby')
             db.destageRobot(sn)
-            return json.dumps({"result": "CHECKMATE", "move":ai_move})
+            return json.dumps({"result": "CHECKMATE", "move": ai_move})
     else:
         if game.checkForGameOver() == "CHECKMATE":
-            return json.dumps({"result": "CHECKMATE", "move":ai_move}) #case of app vs engine games end by engine
+            return json.dumps({"result": "CHECKMATE", "move": ai_move})  # case of app vs engine games end by engine
 
     # if the game isn't over, return AI move in a json object
     return json.dumps({"result": "AI_MOVE", "move": ai_move})
@@ -166,7 +164,6 @@ def move():
 
 @app.route('/api/games/board', methods=["POST"])
 def getBoard():
-
     data = request.get_json()
     id = data.get('id')
     token = data.get('token')
@@ -200,23 +197,22 @@ def ping():
     print(stagedBots)
     if stagedBots is not None:
         if sn in db.getStagedRobots():
-
             # bot has accepted game. set bot to playing
             db.updateRobotStatus(sn, "playing")
 
             return db.getRobotJson(sn)
 
-
-
-
     db.updateRobotStatus(sn, "standby")
-    return "pos"  # Acknowledgement OK
+    return "ACK"  # Acknowledgement OK
+
+
 
 @app.route('/api/robots/reset', methods=["POST"])
 def reset():
     device = request.get_json().get('sn')
-    #delete the data of relevant sn from firebase stagingArea and robot
+    # delete the data of relevant sn from firebase stagingArea and robot
     return "nothing"
+
 
 if __name__ == '__main__':
     app.run(debug=True)

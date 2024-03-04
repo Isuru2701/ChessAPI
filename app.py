@@ -11,8 +11,17 @@ app = Flask(__name__)
 
 CORS(app)
 
+@app.route('/test', methods=["GET"])
+def test1():
+    return "get api called"
+
+@app.route('/test', methods=["POST"])
+def test2():
+    return "post api called"
+
+
 @app.route('/api/games', methods=["POST"])
-def start():
+def test3():
     """
     Initialize a game
     Validate SerialNumber
@@ -201,7 +210,7 @@ def ping():
 
 
     db.updateRobotStatus(sn, "standby")
-    return "ACK"  # Acknowledgement OK
+    return "pos"  # Acknowledgement OK
 
 @app.route('/api/robots/reset', methods=["POST"])
 def reset():

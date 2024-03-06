@@ -6,12 +6,15 @@ import chess
 import chess.engine
 import os
 import platform
+
+
 class Game:
     """
     Represents the game
     Uses stockfish engine
     Communicates with the engine via The Universal chess interface (UCI) and XBoard protocol
     """
+
     def __init__(self, elo, board=""):
         self.__elo = elo
         self.__stockfish = r"stockfish/stockfish-windows-x86-64-avx2.exe"
@@ -23,7 +26,8 @@ class Game:
         # load different binaries based on the server OS
         current_os = platform.system()
         if current_os == "Windows":
-            self.__engine = chess.engine.SimpleEngine.popen_uci( os.path.join("stockfish", "stockfish-windows-x86-64-avx2.exe"))
+            self.__engine = chess.engine.SimpleEngine.popen_uci(
+                os.path.join("stockfish", "stockfish-windows-x86-64-avx2.exe"))
         elif current_os == "Linux":
             self.__engine = chess.engine.SimpleEngine.popen_uci(
                 os.path.join("stockfish_linux", "stockfish-ubuntu-x86-64"))
@@ -58,6 +62,19 @@ class Game:
         """
         return move in self.__board.legal_moves
 
+
+    def isCapture(self, move) -> bool:
+        """Check if the move is a capture
+            return: True if captured, False otherwise
+        """
+        return self.__board.is_capture(move)
+
+    def isCheck(self) -> bool:
+        """Check if the move is a check
+            return: True if check, False otherwise
+        """
+        return self.__board.is_check()
+
     def makeMove(self, moveStr=None) -> str:
         """User makes a move
 
@@ -70,25 +87,31 @@ class Game:
                 return "ILLEGAL_MOVE"
             self.__board.push(user_move)
 
-
     def stockfishMove(self) -> str:
         """stockfish AI makes move and sends back a from-square-to-square"""
+        addendum = 'c=0'
         while True:
             result = self.__engine.play(self.__board, chess.engine.Limit(time=2.0))
             move = result.move
-            if (self.isLegalMove(move)):
+            print(move)
+            if self.isLegalMove(move):
                 break
+
+            # check if move is a capture
+        if self.isCapture(move):
+            addendum = "c=1"
+
         self.__board.push(move)
+
+        if self.isCheck():
+            addendum.append("check=1")
 
         if self.__board.is_kingside_castling(move):
             return "O-O"
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
-        
-        return move.uci()
 
-
-
+        return move.uci() + addendum
 
     def checkForGameOver(self) -> str:
         """Game over logic: check for

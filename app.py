@@ -1,3 +1,4 @@
+import chess
 from flask import Flask, request, session, jsonify
 import json
 import secrets
@@ -10,18 +11,20 @@ from firebaseConfig.firebaseConfig import Database
 app = Flask(__name__)
 
 CORS(app)
+
+
 @app.route('/test', methods=["GET"])
 def test1():
     return "get api called"
+
 
 @app.route('/test', methods=["POST"])
 def test2():
     return "post api called"
 
 
-
 @app.route('/api/games', methods=["POST"])
-def test3():
+def game_start():
     """
     Initialize a game
     Validate SerialNumber
@@ -153,7 +156,8 @@ def move():
             # if game over, reset robot to standby state
             db.updateRobotStatus(sn, 'standby')
             db.destageRobot(sn)
-            return json.dumps({"result": "CHECKMATE", "move": ai_move})
+
+
     else:
         if game.checkForGameOver() == "CHECKMATE":
             return json.dumps({"result": "CHECKMATE", "move": ai_move})  # case of app vs engine games end by engine
@@ -203,7 +207,7 @@ def ping():
             return db.getRobotJson(sn)
 
     db.updateRobotStatus(sn, "standby")
-    return "pos"  # Acknowledgement OK
+    return "ACK"  # Acknowledgement OK
 
 
 @app.route('/api/robots/reset', methods=["POST"])

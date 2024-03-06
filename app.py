@@ -11,8 +11,6 @@ from firebaseConfig.firebaseConfig import Database
 app = Flask(__name__)
 
 CORS(app)
-
-
 @app.route('/test', methods=["GET"])
 def test1():
     return "get api called"

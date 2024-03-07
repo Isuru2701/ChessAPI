@@ -111,7 +111,7 @@ class Game:
         elif self.__board.is_queenside_castling(move):
             return "O-O-O"
 
-        return move.uci() + addendum
+        return move.uci() +"m=p,"+ addendum #m=p, is redudant. for obsolete code. remove in future
 
     def checkForGameOver(self) -> str:
         """Game over logic: check for
